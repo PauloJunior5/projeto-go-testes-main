@@ -40,6 +40,7 @@ jobs:
       run: go build -v main.go
       
   run_pull:
+    needs: build
     environment: teste
     name: run pull
     runs-on: ubuntu-latest
