@@ -1,0 +1,95 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.19
+      
+    - name: Build DB
+      run: docker-compose build
+      
+    - name: Create DB
+      run: docker-compose up -d
+
+    - name: Test
+      run: go test -v main_test.go
+  
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build
+      run: go build -v main.go
+      
+  run_pull:
+    name: run pull
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: install ssh keys
+      # check this thread to understand why its needed:
+      # https://stackoverflow.com/a/70447517
+      run: |
+        install -m 600 -D /dev/null ~/.ssh/id_rsa
+        echo '-----BEGIN OPENSSH PRIVATE KEY-----
+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
+AQIDBA==
+-----END OPENSSH PRIVATE KEY-----' > ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+    - name: connect and pull
+      run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && git checkout ${{ secrets.MAIN_BRANCH }} && git pull && exit"
+    - name: cleanup
+      run: rm -rf ~/.ssh
